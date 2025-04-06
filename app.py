@@ -19,16 +19,14 @@ CPI_hotels = st.number_input('Enter CPI Hotels')
 Fuel_prc = st.number_input('Enter average Fuel Price')
 Unemployment_rate = st.number_input('Enter Unemployment Rate')
 
-if st.button('Predict Cancelation Rate'):
-    # Prepare features
-    features = [Days_til_booking, Month_of_arrival, Gross_domestic_product, Interest_rate,
-                Inflation_chg, Inflation, CPI_avg, CPI_hotels, Fuel_prc, Unemployment_rate]
+if st.button('Predict Cancelation'):
+    # Order: time steps first, then features
+    # Shape = (1, 3, 4) = batch size, time steps, features
+    sequence = np.array([
+        [gdp[0], interest_rate[0], inflation_chg[0], inflation[0]],
+        [gdp[1], interest_rate[1], inflation_chg[1], inflation[1]],
+        [gdp[2], interest_rate[2], inflation_chg[2], inflation[2]]
+    ]).reshape(1, 3, 4)
 
-    # Convert to NumPy array and reshape for LSTM: (batch_size, time_steps, features)
-    features = np.array(features).reshape(1, 1, -1)
-
-    # Make prediction
-    prediction_LSTM = model.predict(features)[0][0]
-
-    # Display prediction
-    st.write(f'LSTM Prediction: {prediction_LSTM:.2f}')
+    prediction = model.predict(sequence)[0][0]
+    st.write(f'LSTM Prediction (probability of cancellation): {prediction:.2f}')
